@@ -837,6 +837,36 @@ const POKEDEX = [
     image: "assets/raichu-alola.png",
     depth: "assets/raichu-alola-depth.png",
   },
+  {
+    no: 26,
+    form: "mega",
+    name: "Mega Raichu X",
+    species: "Mouse Pokémon",
+    types: ["electric"],
+    height: "1.2 m", weight: "38.0 kg",
+    abilities: ["Electric Surge"],
+    blurb: "This Mega Evolution splits its tail into two huge, crackling bolts. The electromagnetic force " +
+           "between them pushes against the ground and holds it aloft, so it hovers rather than walks. " +
+           "It puts its power into close, physical blows, and the air around it hums with charge.",
+    stats: { HP: 60, Attack: 135, Defense: 95, "Sp. Atk": 90, "Sp. Def": 95, Speed: 110 },
+    image: "assets/raichu-mega-x.png",
+    depth: "assets/raichu-mega-x-depth.png",
+  },
+  {
+    no: 26,
+    form: "mega",
+    name: "Mega Raichu Y",
+    species: "Mouse Pokémon",
+    types: ["electric"],
+    height: "1.0 m", weight: "26.0 kg",
+    abilities: ["No Guard"],
+    blurb: "In this Mega Evolution its ears and tail flare into jagged, feathery bolts and the electric " +
+           "sacs in its cheeks grow far more powerful. It is lighter and faster than any other Raichu " +
+           "and fights from range, loosing blasts of electricity that are said never to miss.",
+    stats: { HP: 60, Attack: 100, Defense: 55, "Sp. Atk": 160, "Sp. Def": 80, Speed: 130 },
+    image: "assets/raichu-mega-y.png",
+    depth: "assets/raichu-mega-y-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
