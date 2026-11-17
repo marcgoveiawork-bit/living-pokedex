@@ -723,6 +723,34 @@ const POKEDEX = [
     image: "assets/raticate-alola.png",
     depth: "assets/raticate-alola-depth.png",
   },
+  {
+    no: 21,
+    name: "Spearow",
+    species: "Tiny Bird Pokémon",
+    types: ["normal", "flying"],
+    height: "0.3 m", weight: "2.0 kg",
+    abilities: ["Keen Eye", "Sniper (hidden)"],
+    blurb: "A small, scruffy bird with a short hooked beak and a hot temper. Its stubby wings cannot carry " +
+           "it far or high, so it flaps furiously just to stay up and hunts insects in the grass. It " +
+           "defends its patch loudly, and its shrill cry warns the rest of the flock of danger.",
+    stats: { HP: 40, Attack: 60, Defense: 30, "Sp. Atk": 31, "Sp. Def": 31, Speed: 70 },
+    image: "assets/spearow.png",
+    depth: "assets/spearow-depth.png",
+  },
+  {
+    no: 22,
+    name: "Fearow",
+    species: "Beak Pokémon",
+    types: ["normal", "flying"],
+    height: "1.2 m", weight: "38.0 kg",
+    abilities: ["Keen Eye", "Sniper (hidden)"],
+    blurb: "A long-necked bird with a slender, spear-like beak and broad wings built for stamina. It can " +
+           "stay in the air a full day without landing, riding the wind high overhead. Its beak lets it " +
+           "pluck prey from soil or water, and it climbs steeply before diving on a target.",
+    stats: { HP: 65, Attack: 90, Defense: 65, "Sp. Atk": 61, "Sp. Def": 61, Speed: 100 },
+    image: "assets/fearow.png",
+    depth: "assets/fearow-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
