@@ -32,3 +32,11 @@ Single-page site: `index.html` (home grid + entry view, hash-routed), images in 
    search box stays in place; only the grid of entries scrolls (inside `#scroller`).
 
 Also: add the entry to `POKEDEX` in `index.html`, check home grid + paging, republish the artifact.
+
+## Where things live
+
+- This repository (`marcgoveiawork-bit/living-pokedex`, branch `main`) is the source of truth. After each
+  entry or change: commit, push to `main`, and republish the claude.ai artifact from these files.
+- Artifact: https://claude.ai/artifact/S1xdSPkv6sanjTmx9jBgds (slug `ca96bfa5-85a2-4764-bc38-9e9fb325bfc6`).
+- Phone tilt only works on the GitHub Pages address; the claude.ai viewer blocks motion sensors.
+
