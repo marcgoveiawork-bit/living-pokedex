@@ -1,6 +1,6 @@
 """Clean a raw depth map so it matches its photo and doesn't tear the image.
 
-usage: python3 tools/prep_depth.py <photo> <raw-depth> <out-depth> [--fill x0,y0,x1,y1] [--cap x0,y0,x1,y1] [--clear x0,y0,x1,y1]
+usage: python3 tools/prep_depth.py <photo> <raw-depth> <out-depth> [--fill x0,y0,x1,y1] [--cap x0,y0,x1,y1] [--clear x0,y0,x1,y1] [--near 0.5]
 
 --fill: a box (in photo pixels) where the depth tool missed part of the subject, e.g. a
 flame or smoke. Subject pixels in that box with backdrop-like depth are filled in from the
@@ -15,6 +15,9 @@ subject's depth edge a few pixels so stretching happens in the empty backdrop
 rather than on the subject, then normalise.
 --clear: a box where the depth tool drew a halo onto empty backdrop (e.g. a glow above the
 head). Inside the box only colour decides what is subject, so the halo is dropped.
+--near: how near (0-1) the depth map must say a pale pixel is before it counts as subject.
+Lower it (e.g. 0.2) on a clean depth map when faint far parts such as see-through wings get
+dropped; keep the default on hazy maps, where a low value would pull in halos.
 """
 import sys
 import numpy as np
@@ -37,7 +40,8 @@ bg = np.repeat(row[:, None], w, axis=1)
 sat = rgb.max(2) - rgb.min(2)
 # White/grey parts of the subject (a pale belly, claws) look like backdrop by colour, so also
 # count anything the depth map says is clearly near, then fill fully enclosed holes.
-near = d > bg + 0.5 * (np.percentile(d[:int(h * .8)], 99) - bg)
+NEAR = float(sys.argv[sys.argv.index("--near") + 1]) if "--near" in sys.argv else 0.5
+near = d > bg + NEAR * (np.percentile(d[:int(h * .8)], 99) - bg)
 near[int(h * .8):] = False                              # ignore the floor rising toward the camera
 if "--clear" in sys.argv:
     for spec in sys.argv[sys.argv.index("--clear") + 1].split(";"):      # several boxes: "a,b,c,d;e,f,g,h"

@@ -578,6 +578,35 @@ const POKEDEX = [
     image: "assets/kakuna.png",
     depth: "assets/kakuna-depth.png",
   },
+  {
+    no: 15,
+    name: "Beedrill",
+    species: "Poison Bee Pokémon",
+    types: ["bug", "poison"],
+    height: "1.0 m", weight: "29.5 kg",
+    abilities: ["Swarm", "Sniper (hidden)"],
+    blurb: "A large, fiercely territorial wasp armed with three venomous stingers: a long needle on each " +
+           "foreleg and a third at the tip of its abdomen. It flies at high speed, strikes and darts away " +
+           "before its target can react, and a whole swarm will turn on anything that nears the nest.",
+    stats: { HP: 65, Attack: 90, Defense: 40, "Sp. Atk": 45, "Sp. Def": 80, Speed: 75 },
+    image: "assets/beedrill.png",
+    depth: "assets/beedrill-depth.png",
+  },
+  {
+    no: 15,
+    form: "mega",
+    name: "Mega Beedrill",
+    species: "Poison Bee Pokémon",
+    types: ["bug", "poison"],
+    height: "1.4 m", weight: "40.5 kg",
+    abilities: ["Adaptability"],
+    blurb: "Mega Evolution turns all four limbs into long lances, joining the enlarged stinger on its " +
+           "abdomen to give it five in all, and adds a second pair of wings. It gives up nearly " +
+           "everything else for raw speed and piercing power, striking faster than the eye can follow.",
+    stats: { HP: 65, Attack: 150, Defense: 40, "Sp. Atk": 15, "Sp. Def": 80, Speed: 145 },
+    image: "assets/beedrill-mega.png",
+    depth: "assets/beedrill-mega-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
