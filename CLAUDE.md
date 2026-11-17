@@ -14,6 +14,7 @@ Single-page site: `index.html` (home grid + entry view, hash-routed), images in 
    the far left and far right and look for tearing or halos around the silhouette.
    If the depth tool missed part of the subject (flame, smoke), add `--fill x0,y0,x1,y1` around it.
    If a part reads far too near (e.g. a flame brighter than the tail it sits on), add `--cap x0,y0,x1,y1`.
+   If the depth map has a halo over empty backdrop (e.g. a glow above the head), add `--clear x0,y0,x1,y1`.
 3. **Mega entries** (`form: "mega"`): share the base number (e.g. 003 Mega), and the *page* background
    (never the Pokémon image background) shows tiny pale stars/sparkles fading in and out.
 4. **Gigantamax entries** (`form: "gmax"`): same idea, but the tiny stars are red-pink.

@@ -421,6 +421,20 @@ const POKEDEX = [
     image: "assets/charizard-gmax.png",
     depth: "assets/charizard-gmax-depth.png",
   },
+  {
+    no: 7,
+    name: "Squirtle",
+    species: "Tiny Turtle Pokémon",
+    types: ["water"],
+    height: "0.5 m", weight: "9.0 kg",
+    abilities: ["Torrent", "Rain Dish (hidden)"],
+    blurb: "A small, round-headed turtle that walks upright on stubby legs. Its shell starts out soft and " +
+           "hardens within days of hatching; when threatened it pulls its head and limbs inside and " +
+           "squirts water with surprising force. The smooth, domed shell also lets it slip quickly through water.",
+    stats: { HP: 44, Attack: 48, Defense: 65, "Sp. Atk": 50, "Sp. Def": 64, Speed: 43 },
+    image: "assets/squirtle.png",
+    depth: "assets/squirtle-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
