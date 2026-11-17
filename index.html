@@ -751,6 +751,34 @@ const POKEDEX = [
     image: "assets/fearow.png",
     depth: "assets/fearow-depth.png",
   },
+  {
+    no: 23,
+    name: "Ekans",
+    species: "Snake Pokémon",
+    types: ["poison"],
+    height: "2.0 m", weight: "6.9 kg",
+    abilities: ["Intimidate", "Shed Skin, Unnerve (hidden)"],
+    blurb: "A purple snake with a yellow band at its throat and a rattle at the tip of its tail. It moves " +
+           "silently through grass, flicking its tongue to taste the air for prey, and can unhinge its " +
+           "jaw to swallow eggs whole. It coils up tightly to rest, with its head raised and ready.",
+    stats: { HP: 35, Attack: 60, Defense: 44, "Sp. Atk": 40, "Sp. Def": 54, Speed: 55 },
+    image: "assets/ekans.png",
+    depth: "assets/ekans-depth.png",
+  },
+  {
+    no: 24,
+    name: "Arbok",
+    species: "Cobra Pokémon",
+    types: ["poison"],
+    height: "3.5 m", weight: "65.0 kg",
+    abilities: ["Intimidate", "Shed Skin, Unnerve (hidden)"],
+    blurb: "A large cobra whose spread hood bears a pattern like a glaring face, which it shows to freeze " +
+           "prey with fear. The markings differ from one region to another. Its coils are strong enough " +
+           "to crush steel drums, and once it wraps around something it is almost impossible to escape.",
+    stats: { HP: 60, Attack: 95, Defense: 69, "Sp. Atk": 65, "Sp. Def": 79, Speed: 80 },
+    image: "assets/arbok.png",
+    depth: "assets/arbok-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
