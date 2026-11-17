@@ -435,6 +435,20 @@ const POKEDEX = [
     image: "assets/squirtle.png",
     depth: "assets/squirtle-depth.png",
   },
+  {
+    no: 8,
+    name: "Wartortle",
+    species: "Turtle Pokémon",
+    types: ["water"],
+    height: "1.0 m", weight: "22.5 kg",
+    abilities: ["Torrent", "Rain Dish (hidden)"],
+    blurb: "Larger and sterner than its younger form, with feathery, wing-like ears and a thick plume of " +
+           "a tail that it uses to steer and balance while swimming. The tail's fur deepens in colour with " +
+           "age, and the scratches worn into its shell are the record of a seasoned fighter.",
+    stats: { HP: 59, Attack: 63, Defense: 80, "Sp. Atk": 65, "Sp. Def": 80, Speed: 58 },
+    image: "assets/wartortle.png",
+    depth: "assets/wartortle-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");

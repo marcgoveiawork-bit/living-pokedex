@@ -40,8 +40,9 @@ sat = rgb.max(2) - rgb.min(2)
 near = d > bg + 0.5 * (np.percentile(d[:int(h * .8)], 99) - bg)
 near[int(h * .8):] = False                              # ignore the floor rising toward the camera
 if "--clear" in sys.argv:
-    x0, y0, x1, y1 = map(int, sys.argv[sys.argv.index("--clear") + 1].split(","))
-    near[y0:y1, x0:x1] = False
+    for spec in sys.argv[sys.argv.index("--clear") + 1].split(";"):      # several boxes: "a,b,c,d;e,f,g,h"
+        x0, y0, x1, y1 = map(int, spec.split(","))
+        near[y0:y1, x0:x1] = False
 fg = ((sat > 28) | (rgb.min(2) < 150) | near).astype(np.uint8) * 255
 fg = Image.fromarray(fg).filter(ImageFilter.MedianFilter(odd(5)))             # drop speckle
 flood = fg.copy()
