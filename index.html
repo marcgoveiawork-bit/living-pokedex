@@ -694,6 +694,35 @@ const POKEDEX = [
     image: "assets/rattata-alola.png",
     depth: "assets/rattata-alola-depth.png",
   },
+  {
+    no: 20,
+    name: "Raticate",
+    species: "Mouse Pokémon",
+    types: ["normal"],
+    height: "0.7 m", weight: "18.5 kg",
+    abilities: ["Run Away", "Guts, Hustle (hidden)"],
+    blurb: "A stocky, tawny rodent with long whiskers that help it keep its balance and heavy fangs that " +
+           "grow throughout its life. It gnaws on rock, timber and even concrete to file them down. Its " +
+           "webbed hind feet make it a capable swimmer, so it can cross rivers in pursuit of food.",
+    stats: { HP: 55, Attack: 81, Defense: 60, "Sp. Atk": 50, "Sp. Def": 70, Speed: 97 },
+    image: "assets/raticate.png",
+    depth: "assets/raticate-depth.png",
+  },
+  {
+    no: 20,
+    form: "alola",
+    name: "Alolan Raticate",
+    species: "Mouse Pokémon",
+    types: ["dark", "normal"],
+    height: "0.7 m", weight: "25.5 kg",
+    abilities: ["Gluttony", "Hustle, Thick Fat (hidden)"],
+    blurb: "Heavier than its mainland cousin, with black fur and bulging cheeks, this Raticate rules a " +
+           "nest of Rattata and sends them out to bring back food while it stays behind to eat. It is " +
+           "picky about what it is served, and its rich diet is the reason for its considerable bulk.",
+    stats: { HP: 75, Attack: 71, Defense: 70, "Sp. Atk": 40, "Sp. Def": 80, Speed: 77 },
+    image: "assets/raticate-alola.png",
+    depth: "assets/raticate-alola-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
