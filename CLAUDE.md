@@ -34,6 +34,13 @@ Single-page site: `index.html` (home grid + entry view, hash-routed), images in 
    Pokémon's primary type, not the default green.
 8. **Home page: fixed top, scrolling entries.** Everything from the "Living Pokédex" header down to the
    search box stays in place; only the grid of entries scrolls (inside `#scroller`).
+9. **Entries from other regions** (e.g. 172 Pichu, Johto): set `region: "Johto"` on the entry. The home
+   page groups cards under a heading per region; only Kanto shows "coming soon" tiles, other regions
+   list just what has been recorded, so an out-of-order entry never creates a run of blank tiles.
+10. **Evolution line on every entry page.** Under the image, each entry shows its evolution line as
+   small round pictures; clicking one opens that entry. Lines are listed by number in `EVOLUTIONS` in
+   `index.html` - add the new Pokémon's line (or extend an existing one) with each entry. Regional forms
+   follow their own form; Mega and Gigantamax pages show the base line.
 
 Also: add the entry to `POKEDEX` in `index.html`, check home grid + paging, republish the artifact.
 

@@ -169,6 +169,37 @@
     color: var(--muted); opacity: .75; }
   main .legal { grid-column: 1 / -1; position: relative; z-index: 2; margin-top: 10px; }
 
+  /* Evolution line under the image */
+  .evo { margin-top: 26px; text-align: center; }
+  .evo[hidden] { display: none; }
+  .evo-title { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .24em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 12px; }
+  .evo-row { display: flex; justify-content: center; align-items: flex-start; gap: clamp(6px, 1.6vw, 18px); }
+  .evo-step { display: flex; flex-direction: column; align-items: center; width: clamp(76px, 9vw, 104px);
+    color: var(--ink); text-decoration: none; }
+  .evo-pic { display: grid; place-items: center; width: clamp(58px, 6.5vw, 76px); aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+    background: #0d1814; box-shadow: 0 0 0 1px var(--line); font: italic 700 26px var(--serif); color: var(--muted);
+    transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; }
+  .evo-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .evo-step small { margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    color: color-mix(in srgb, var(--c, #93a39a) 78%, white); }
+  .evo-step b { font-family: var(--serif); font-weight: 600; font-size: 14px; line-height: 1.15; text-align: center; text-wrap: balance; }
+  .evo-step.here .evo-pic { box-shadow: 0 0 0 2px var(--c), 0 0 26px -4px var(--c); }
+  a.evo-step:hover .evo-pic, a.evo-step:focus-visible .evo-pic { transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 0 0 2px var(--c), 0 0 26px -4px var(--c); }
+  a.evo-step:focus-visible { outline: 0; }
+  a.evo-step:hover b { color: color-mix(in srgb, var(--c) 70%, white); }
+  .evo-step.locked b { color: var(--muted); font-weight: 400; }
+  .evo-arrow { font: 400 26px var(--serif); font-style: normal; color: var(--muted); margin-top: clamp(14px, 1.9vw, 22px); }
+
+  /* Region headings in the home grid */
+  .region { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 14px; margin: 6px 0 -4px;
+    font-family: var(--serif); font-weight: 600; font-style: italic; font-size: 26px; }
+  .region:not(:first-child) { margin-top: 34px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .region small { font-family: var(--mono); font-style: normal; font-weight: 400; font-size: 11px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--muted); }
+  .region[hidden] { display: none; }
+
   /* Home */
   body[data-view="home"] main, body[data-view="entry"] #home { display: none; }
   #home { --pad: clamp(20px, 4vw, 56px); max-width: 1400px; margin: 0 auto; padding: 10px var(--pad) 80px; }
@@ -251,6 +282,7 @@
       <canvas id="gl" aria-label="3D depth view of the specimen"></canvas>
       <div class="tag" id="tag" hidden>Placeholder specimen · add your render to /assets</div>
     </div>
+    <nav class="evo" id="evo" aria-label="Evolution line" hidden></nav>
   </div>
 
   <section class="info" data-depth="14" id="info"></section>
@@ -867,6 +899,21 @@ const POKEDEX = [
     image: "assets/raichu-mega-y.png",
     depth: "assets/raichu-mega-y-depth.png",
   },
+  {
+    no: 172,
+    region: "Johto",                   // entries from other regions get their own section on the home page
+    name: "Pichu",
+    species: "Tiny Mouse Pokémon",
+    types: ["electric"],
+    height: "0.3 m", weight: "2.0 kg",
+    abilities: ["Static", "Lightning Rod (hidden)"],
+    blurb: "A tiny, pale-yellow mouse with oversized black-edged ears and pink cheek pouches too small to " +
+           "hold much charge. It has not yet learned to control its electricity, so it lets off sparks " +
+           "when startled or amused and often shocks itself in the process. It grows calmer as it matures.",
+    stats: { HP: 20, Attack: 40, Defense: 15, "Sp. Atk": 35, "Sp. Def": 35, Speed: 60 },
+    image: "assets/pichu.png",
+    depth: "assets/pichu-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
@@ -877,7 +924,23 @@ const TYPE_COLORS = {
   rock: "#c2b790", ghost: "#5b69a7", dragon: "#406cbe", dark: "#595365", steel: "#6b8d9f", fairy: "#db94e1",
 };
 const FORMS = { mega: "Mega", gmax: "Gigantamax", alola: "Alolan" };   // regional forms get a badge, no stars
-const SPECIES_COUNT = new Set(POKEDEX.map(p => p.no)).size;   // forms share a number
+// Regions, in home-page order. `total` = species in that region's own Pokédex range.
+const REGIONS = [{ name: "Kanto", total: 151 }, { name: "Johto", total: 100 }];
+const regionOf = p => p.region || "Kanto";
+const speciesIn = r => new Set(POKEDEX.filter(p => regionOf(p) === r).map(p => p.no)).size;   // forms share a number
+
+// Evolution lines by Pokédex number. Each entry page shows its line; a regional form follows
+// its own form where one exists (Alolan Rattata -> Alolan Raticate).
+const EVOLUTIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15], [16, 17, 18],
+                    [19, 20], [21, 22], [23, 24], [172, 25, 26]];
+const REGIONAL = ["alola"];
+function evolutionLine(p) {
+  const line = EVOLUTIONS.find(l => l.includes(p.no));
+  if (!line) return null;
+  const mine = REGIONAL.includes(p.form) ? p.form : null;
+  return line.map(no => no === p.no && (!p.form || mine) ? p :
+    (mine && POKEDEX.find(e => e.no === no && e.form === mine)) || POKEDEX.find(e => e.no === no && !e.form) || { no });
+}
 
 /* ---- fan-project notice, shown at the foot of the home grid and of every entry ---- */
 const LEGAL = "Living Pokédex is an unofficial, non-commercial fan project made for personal enjoyment. " +
@@ -902,17 +965,28 @@ document.querySelectorAll(".legal").forEach(el => el.textContent = LEGAL);
 /* ------------------------------ home page -------------------------- */
 const TOTAL = 151, TEASERS = 6;   // a few "coming soon" tiles after the last recorded entry
 (function renderHome() {
-  document.getElementById("count").textContent = `Kanto region · ${SPECIES_COUNT} of ${TOTAL} recorded`;
+  document.getElementById("count").textContent = REGIONS.filter(r => speciesIn(r.name))
+    .map(r => `${r.name} · ${speciesIn(r.name)} of ${r.total}`).join("   /   ") + " recorded";
   const grid = document.getElementById("grid");
-  const last = POKEDEX[POKEDEX.length - 1].no;
-  let html = POKEDEX.map(p => `
-    <a class="card" style="--c:${TYPE_COLORS[p.types[0]]}" data-t1="${TYPE_COLORS[p.types[0]]}" data-t2="${TYPE_COLORS[p.types[1] || p.types[0]]}" href="#${slug(p)}" data-find="${pad3(p.no)} ${p.no} ${p.name.toLowerCase()} ${(FORMS[p.form] || "").toLowerCase()}">
+  const card = p => `
+    <a class="card" style="--c:${TYPE_COLORS[p.types[0]]}" data-t1="${TYPE_COLORS[p.types[0]]}" data-t2="${TYPE_COLORS[p.types[1] || p.types[0]]}" href="#${slug(p)}" data-find="${pad3(p.no)} ${p.no} ${p.name.toLowerCase()} ${(FORMS[p.form] || "").toLowerCase()} ${regionOf(p).toLowerCase()}">
       <img src="${p.image}" alt="" loading="lazy">
       ${p.form ? `<em class="form ${p.form}">${FORMS[p.form]}</em>` : ""}
       <div class="meta"><span>#${pad3(p.no)}</span><b>${p.name}</b></div>
-    </a>`).join("");
-  for (let n = last + 1; n <= Math.min(TOTAL, last + TEASERS); n++) html += `
+    </a>`;
+  // One section per region that has entries. Only the first region (the one being filled in
+  // order) shows "coming soon" tiles; other regions list just what has been recorded.
+  let html = "";
+  REGIONS.forEach((r, ri) => {
+    const list = POKEDEX.filter(p => regionOf(p) === r.name);
+    if (!list.length) return;
+    html += `<h2 class="region"><span>${r.name}</span><small>${speciesIn(r.name)} of ${r.total}</small></h2>` + list.map(card).join("");
+    if (ri === 0) {
+      const last = Math.max(...list.map(p => p.no));
+      for (let n = last + 1; n <= Math.min(r.total, last + TEASERS); n++) html += `
     <div class="card locked"><i>?</i><div class="meta"><span>#${pad3(n)}</span><b>Coming soon</b></div></div>`;
+    }
+  });
   grid.innerHTML = html;
   // Hovering (or keyboard-focusing) a card re-themes the whole home page to that Pokémon's type.
   const root = document.documentElement.style;
@@ -976,7 +1050,18 @@ const TOTAL = 151, TEASERS = 6;   // a few "coming soon" tiles after the last re
 function renderInfo(p) {
   const pad = pad3(p.no), i = POKEDEX.indexOf(p), prev = POKEDEX[i - 1], next = POKEDEX[i + 1];
   document.title = `${pad} ${p.name} — Living Pokédex`;
-  document.getElementById("crumb").textContent = `Kanto · Entry ${pad} / 151` + (p.form ? ` · ${FORMS[p.form]}` : "");
+  document.getElementById("crumb").textContent = `${regionOf(p)} · Entry ${pad}` + (regionOf(p) === "Kanto" ? " / 151" : "") + (p.form ? ` · ${FORMS[p.form]}` : "");
+  const line = evolutionLine(p);
+  const evo = document.getElementById("evo");
+  evo.hidden = !line;
+  if (line) evo.innerHTML = `<span class="evo-title">Evolution</span><div class="evo-row">` + line.map((e, i) => {
+    const arrow = i ? `<i class="evo-arrow" aria-hidden="true">›</i>` : "";
+    if (!e.name) return arrow + `<span class="evo-step locked"><span class="evo-pic">?</span><small>#${pad3(e.no)}</small><b>Coming soon</b></span>`;
+    const here = e.no === p.no, c = TYPE_COLORS[e.types[0]];
+    const inner = `<span class="evo-pic"><img src="${e.image}" alt=""></span><small>#${pad3(e.no)}</small><b>${e.name}</b>`;
+    return arrow + (e === p ? `<span class="evo-step here" style="--c:${c}" aria-current="page">${inner}</span>`
+                            : `<a class="evo-step${here ? " here" : ""}" style="--c:${c}" href="#${slug(e)}">${inner}</a>`);
+  }).join("") + `</div>`;
   document.getElementById("ghost").textContent = pad;
   document.getElementById("info").innerHTML = `
     <a class="back" href="#home">‹ Pokédex</a>
@@ -1218,7 +1303,7 @@ async function show() {
   if (!p) {
     current = null; ++showing;
     document.title = "Living Pokédex — Kanto";
-    document.getElementById("crumb").textContent = "Kanto region";
+    document.getElementById("crumb").textContent = "National Pokédex";
     return;
   }
   if (p === current) return;
