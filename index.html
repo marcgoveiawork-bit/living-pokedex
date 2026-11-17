@@ -607,6 +607,34 @@ const POKEDEX = [
     image: "assets/beedrill-mega.png",
     depth: "assets/beedrill-mega-depth.png",
   },
+  {
+    no: 16,
+    name: "Pidgey",
+    species: "Tiny Bird Pokémon",
+    types: ["normal", "flying"],
+    height: "0.3 m", weight: "1.8 kg",
+    abilities: ["Keen Eye", "Tangled Feet, Big Pecks (hidden)"],
+    blurb: "A small, plump brown bird common in grassland and woods. It is mild-mannered and would rather " +
+           "avoid a fight, flapping its wings at ground level to kick up a blinding cloud of dust and " +
+           "slip away. It has a strong homing sense and finds its way back to its nest from any distance.",
+    stats: { HP: 40, Attack: 45, Defense: 40, "Sp. Atk": 35, "Sp. Def": 35, Speed: 56 },
+    image: "assets/pidgey.png",
+    depth: "assets/pidgey-depth.png",
+  },
+  {
+    no: 17,
+    name: "Pidgeotto",
+    species: "Bird Pokémon",
+    types: ["normal", "flying"],
+    height: "1.1 m", weight: "30.0 kg",
+    abilities: ["Keen Eye", "Tangled Feet, Big Pecks (hidden)"],
+    blurb: "A sharp-eyed bird of prey with a swept-back crest of reddish-pink feathers and powerful talons. " +
+           "It claims a wide territory and patrols it tirelessly from the air, driving off any intruder. " +
+           "Once it spots prey it dives, seizes it in its claws and carries it long distances back to the nest.",
+    stats: { HP: 63, Attack: 60, Defense: 55, "Sp. Atk": 50, "Sp. Def": 50, Speed: 71 },
+    image: "assets/pidgeotto.jpg",
+    depth: "assets/pidgeotto-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
