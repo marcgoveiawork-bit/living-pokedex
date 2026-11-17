@@ -635,6 +635,35 @@ const POKEDEX = [
     image: "assets/pidgeotto.jpg",
     depth: "assets/pidgeotto-depth.png",
   },
+  {
+    no: 18,
+    name: "Pidgeot",
+    species: "Bird Pokémon",
+    types: ["normal", "flying"],
+    height: "1.5 m", weight: "39.5 kg",
+    abilities: ["Keen Eye", "Tangled Feet, Big Pecks (hidden)"],
+    blurb: "A large, handsome bird of prey with a long crest of red and gold streaming back from its head. " +
+           "It cruises at great height and great speed, and its eyesight is sharp enough to pick out prey " +
+           "far below. A few beats of its broad wings can raise a wind strong enough to bend trees.",
+    stats: { HP: 83, Attack: 80, Defense: 75, "Sp. Atk": 70, "Sp. Def": 70, Speed: 101 },
+    image: "assets/pidgeot.png",
+    depth: "assets/pidgeot-depth.png",
+  },
+  {
+    no: 18,
+    form: "mega",
+    name: "Mega Pidgeot",
+    species: "Bird Pokémon",
+    types: ["normal", "flying"],
+    height: "2.2 m", weight: "50.5 kg",
+    abilities: ["No Guard"],
+    blurb: "Mega Evolution lengthens its wings and tips them in blue, and its crest grows into long " +
+           "streamers of crimson and gold that trail far behind it in flight. Its muscles strengthen so " +
+           "much that it can stay aloft for weeks, and the gales from its wings never miss their mark.",
+    stats: { HP: 83, Attack: 80, Defense: 80, "Sp. Atk": 135, "Sp. Def": 80, Speed: 121 },
+    image: "assets/pidgeot-mega.png",
+    depth: "assets/pidgeot-mega-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
