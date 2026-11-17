@@ -779,6 +779,35 @@ const POKEDEX = [
     image: "assets/arbok.png",
     depth: "assets/arbok-depth.png",
   },
+  {
+    no: 25,
+    name: "Pikachu",
+    species: "Mouse Pokémon",
+    types: ["electric"],
+    height: "0.4 m", weight: "6.0 kg",
+    abilities: ["Static", "Lightning Rod (hidden)"],
+    blurb: "A small yellow rodent with black-tipped ears, red cheek pouches and a tail shaped like a " +
+           "lightning bolt. The pouches store electricity, which it releases as a jolt when startled or " +
+           "threatened. It raises its tail to sense its surroundings, and groups of them can build up a serious charge.",
+    stats: { HP: 35, Attack: 55, Defense: 40, "Sp. Atk": 50, "Sp. Def": 50, Speed: 90 },
+    image: "assets/pikachu.png",
+    depth: "assets/pikachu-depth.png",
+  },
+  {
+    no: 25,
+    form: "gmax",
+    name: "Gigantamax Pikachu",
+    species: "Mouse Pokémon",
+    types: ["electric"],
+    height: "21.0+ m", weight: "???.? kg",      // officially unmeasured
+    abilities: ["Static", "Lightning Rod (hidden)"],
+    blurb: "Gigantamax energy makes it enormous and round, and its tail stretches skyward into a blazing " +
+           "bolt that holds all the power it generates. The tail glows as if lightning were trapped " +
+           "inside. Its Electric-type attacks become G-Max Volt Crash, which paralyses every foe it hits.",
+    stats: { HP: 35, Attack: 55, Defense: 40, "Sp. Atk": 50, "Sp. Def": 50, Speed: 90 },
+    image: "assets/pikachu-gmax.png",
+    depth: "assets/pikachu-gmax-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
