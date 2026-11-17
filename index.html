@@ -550,6 +550,34 @@ const POKEDEX = [
     image: "assets/butterfree-gmax.png",
     depth: "assets/butterfree-gmax-depth.png",
   },
+  {
+    no: 13,
+    name: "Weedle",
+    species: "Hairy Bug Pokémon",
+    types: ["bug", "poison"],
+    height: "0.3 m", weight: "3.2 kg",
+    abilities: ["Shield Dust", "Run Away (hidden)"],
+    blurb: "A small brown larva with a bulbous pink nose and a sharp barb on its head, matched by a second " +
+           "on its tail. Both carry venom, and it will jab anything that disturbs it. Its keen sense of " +
+           "smell lets it pick out the leaves it likes best among those it dislikes.",
+    stats: { HP: 40, Attack: 35, Defense: 30, "Sp. Atk": 20, "Sp. Def": 20, Speed: 50 },
+    image: "assets/weedle.png",
+    depth: "assets/weedle-depth.png",
+  },
+  {
+    no: 14,
+    name: "Kakuna",
+    species: "Cocoon Pokémon",
+    types: ["bug", "poison"],
+    height: "0.6 m", weight: "10.0 kg",
+    abilities: ["Shed Skin"],
+    blurb: "A hard yellow cocoon that hangs almost motionless from tree trunks while the adult takes shape " +
+           "inside. It cannot move on its own, but the shell grows hot as its body reorganises, and if " +
+           "pressed it can still push out a venomous barb to defend itself.",
+    stats: { HP: 45, Attack: 25, Defense: 50, "Sp. Atk": 25, "Sp. Def": 25, Speed: 35 },
+    image: "assets/kakuna.png",
+    depth: "assets/kakuna-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
