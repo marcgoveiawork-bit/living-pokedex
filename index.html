@@ -493,6 +493,34 @@ const POKEDEX = [
     image: "assets/blastoise-gmax.png",
     depth: "assets/blastoise-gmax-depth.png",
   },
+  {
+    no: 10,
+    name: "Caterpie",
+    species: "Worm Pokémon",
+    types: ["bug"],
+    height: "0.3 m", weight: "2.9 kg",
+    abilities: ["Shield Dust", "Run Away (hidden)"],
+    blurb: "A small green caterpillar with large eyes and a red, forked feeler on its head. When alarmed " +
+           "the feeler gives off a sharp stench that drives predators away. Suction pads on its stubby " +
+           "feet let it climb any surface, and it eats leaves bigger than itself to fuel its rapid growth.",
+    stats: { HP: 45, Attack: 30, Defense: 35, "Sp. Atk": 20, "Sp. Def": 20, Speed: 45 },
+    image: "assets/caterpie.png",
+    depth: "assets/caterpie-depth.png",
+  },
+  {
+    no: 11,
+    name: "Metapod",
+    species: "Cocoon Pokémon",
+    types: ["bug"],
+    height: "0.7 m", weight: "9.9 kg",
+    abilities: ["Shed Skin"],
+    blurb: "A crescent-shaped chrysalis that barely moves while its body rebuilds itself inside. The outer " +
+           "shell is hard as iron, but the soft interior is easily hurt by a heavy blow, so it stays " +
+           "perfectly still and hardens its shell further whenever it senses danger.",
+    stats: { HP: 50, Attack: 20, Defense: 55, "Sp. Atk": 25, "Sp. Def": 25, Speed: 30 },
+    image: "assets/metapod.png",
+    depth: "assets/metapod-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
