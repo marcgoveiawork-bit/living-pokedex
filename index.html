@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>001 Bulbasaur — Living Pokédex</title>
+<style>
+  /* Registered as colours so the page tint can fade smoothly between types. */
+  @property --t1 { syntax: "<color>"; inherits: true; initial-value: #6fcf5c; }
+  @property --t2 { syntax: "<color>"; inherits: true; initial-value: #b76fd6; }
+  :root {
+    transition: --t1 .6s ease, --t2 .6s ease;
+    --bg: #070b0a;
+    --ink: #eef3ea;
+    --muted: #93a39a;
+    --line: rgba(255,255,255,.1);
+    /* --t1 / --t2 are the entry's primary / secondary type colours, set from script.
+       The page tint, glow and accents all derive from them. Defaults = grass / poison. */
+    --t1: #6fcf5c;
+    --t2: #b76fd6;
+    --accent: color-mix(in srgb, var(--t1) 70%, white);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; }
+  body {
+    background:
+      radial-gradient(1200px 700px at 25% 40%, color-mix(in srgb, var(--t1) 15%, var(--bg)) 0%, transparent 65%),
+      radial-gradient(900px 600px at 90% 10%, color-mix(in srgb, var(--t2) 14%, var(--bg)) 0%, transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px clamp(20px, 4vw, 56px);
+    font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  header strong { color: var(--ink); font-weight: 600; }
+  header .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent); margin-right: 10px; }
+
+  main {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: center;
+    max-width: 1400px; margin: 0 auto;
+    padding: 10px clamp(20px, 4vw, 56px) 60px;
+    min-height: calc(100vh - 70px);
+  }
+
+  /* Giant index number drifting behind everything */
+  .ghost {
+    position: absolute; left: 0; top: 50%;
+    font-family: var(--serif); font-weight: 700; font-style: italic;
+    font-size: clamp(220px, 38vw, 620px); line-height: .8;
+    color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.06);
+    transform: translate3d(0,-50%,0);
+    pointer-events: none; user-select: none; z-index: 0;
+    will-change: transform;
+  }
+
+  /* The depth window */
+  .stage-wrap { position: relative; z-index: 1; perspective: 1400px; }
+  .stage {
+    position: relative; aspect-ratio: 1 / 1; width: 100%;
+    max-height: 78vh; margin: 0 auto;
+    border-radius: 28px; overflow: hidden;
+    background: #0b1512;
+    box-shadow:
+      0 0 0 1px var(--line),
+      0 40px 90px -20px rgba(0,0,0,.8),
+      0 0 120px -30px color-mix(in srgb, var(--t1) 38%, transparent);
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; transition: opacity .35s; }
+  .stage::after { /* vignette + glass sheen */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.6) 100%),
+      linear-gradient(125deg, rgba(255,255,255,.07) 0%, transparent 28%);
+  }
+  .tag {
+    position: absolute; left: 18px; bottom: 16px; z-index: 2;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(255,255,255,.75);
+    background: rgba(0,0,0,.45); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px;
+  }
+  .tag[hidden] { display: none; }
+
+  /* Info panel */
+  .info { position: relative; z-index: 2; will-change: transform; }
+  .no { font-family: var(--mono); font-size: 13px; letter-spacing: .3em; color: var(--accent); }
+  h1 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(52px, 7.5vw, 112px); line-height: .95; letter-spacing: -.02em;
+    margin: 10px 0 6px;
+  }
+  .species { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--muted); }
+  .types { display: flex; gap: 10px; margin: 22px 0; }
+  .type {
+    font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    padding: 7px 16px; border-radius: 999px; border: 1px solid currentColor;
+  }
+  .type { color: var(--c); background: color-mix(in srgb, var(--c) 11%, transparent); }
+  .blurb { max-width: 46ch; line-height: 1.65; color: #cbd6ce; font-size: 16px; }
+
+  .facts {
+    display: grid; grid-template-columns: repeat(3, auto); justify-content: start;
+    gap: 8px 36px; margin: 28px 0; padding: 20px 0;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  }
+  .facts dt { font-family: var(--mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .facts dd { font-family: var(--serif); font-size: 22px; margin-top: 4px; }
+  .facts small { font-family: var(--sans); font-size: 12px; color: var(--muted); }
+
+  .stats { display: grid; gap: 9px; max-width: 460px; }
+  .stat { display: grid; grid-template-columns: 74px 34px 1fr; align-items: center; gap: 10px; font-size: 12px; }
+  .stat span:first-child { font-family: var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-size: 11px; }
+  .stat b { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+  .bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: 3px;
+    background: linear-gradient(90deg, var(--t1), var(--accent));
+    transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
+
+  .pager { display: flex; justify-content: space-between; gap: 16px; max-width: 460px; margin-top: 30px; }
+  .pager a, .pager .off { font-family: var(--serif); font-size: 18px; color: var(--ink); text-decoration: none; }
+  .pager .r { text-align: right; }
+  .pager a span, .pager .off span { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .pager .off, .pager .off span { color: var(--muted); }
+  .pager a:hover { color: var(--accent); }
+  .back { display: inline-block; margin-bottom: 18px; font-family: var(--mono); font-size: 12px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--muted); text-decoration: none; }
+  .back:hover, .brand:hover strong { color: var(--accent); }
+  .brand { text-decoration: none; color: inherit; }
+
+  /* Special forms: stars twinkling behind the page (never over the Pokémon image) */
+  header, main, #home { position: relative; z-index: 1; }
+  #sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .9s; }
+  body[data-form="mega"] #sky, body[data-form="gmax"] #sky { opacity: 1; }
+  body[data-form="mega"] #sky i { --star: var(--m); }
+  body[data-form="gmax"] #sky i { --star: var(--g); }
+  #sky i { position: absolute; border-radius: 50%; background: var(--star); box-shadow: 0 0 6px 1px var(--star);
+    opacity: 0; animation: twinkle var(--d) ease-in-out var(--o) infinite; }
+  #sky i.x { border-radius: 0; box-shadow: none;
+    clip-path: polygon(50% 0, 57% 43%, 100% 50%, 57% 57%, 50% 100%, 43% 57%, 0 50%, 43% 43%); }
+  body:not([data-form="mega"]):not([data-form="gmax"]) #sky i { animation-play-state: paused; }
+  @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.4); } 50% { opacity: var(--a); transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { #sky i { animation: none; opacity: calc(var(--a) * .6); } }
+  .form { font: 600 11px var(--sans); font-style: normal; letter-spacing: .16em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px; margin-left: 10px; vertical-align: 1px; }
+  .form.mega { color: #0b1512; background: linear-gradient(100deg, #cfeeff, #e6d2ff 50%, #c9ffe2); }
+  .form.gmax { color: #fff; background: linear-gradient(100deg, #e8365a, #ff7aa2); }
+  .card .form { position: absolute; top: 14px; right: 14px; margin: 0; z-index: 1; }
+
+  /* Home */
+  body[data-view="home"] main, body[data-view="entry"] #home { display: none; }
+  #home { --pad: clamp(20px, 4vw, 56px); max-width: 1400px; margin: 0 auto; padding: 10px var(--pad) 80px; }
+  /* Home: the title block stays put and only the entries scroll (when the screen is tall enough). */
+  @media (min-height: 600px) {
+    body[data-view="home"] { height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+    body[data-view="home"] #home { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; padding-bottom: 0; }
+    body[data-view="home"] .search { margin-bottom: 14px; flex: none; }
+    .scroller { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+      margin: 0 calc(-1 * var(--pad)); padding: 26px var(--pad) 90px;      /* room for hover lift + glow */
+      -webkit-mask-image: linear-gradient(transparent, #000 26px); mask-image: linear-gradient(transparent, #000 26px);
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.16) transparent; }
+  }
+  #home h1 { font-size: clamp(56px, 9vw, 128px); }
+  .sub { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--muted); }
+  .search { display: flex; align-items: center; gap: 12px; max-width: 460px; margin: 28px 0 34px;
+    padding: 0 20px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--muted); }
+  .search:focus-within { border-color: var(--accent); color: var(--accent); }
+  .search input { flex: 1; min-width: 0; padding: 14px 0; border: 0; outline: 0; background: none; color: var(--ink); font: 16px var(--sans); }
+  .search input::placeholder { color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px; }
+  .card { position: relative; display: block; aspect-ratio: 1 / 1; border-radius: 24px; overflow: hidden;
+    background: #0d1814; color: var(--ink); text-decoration: none;
+    box-shadow: 0 0 0 1px var(--line), 0 24px 50px -24px rgba(0,0,0,.9);
+    transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
+  .card[hidden] { display: none; }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+  a.card:hover, a.card:focus-visible, a.card.active { transform: translateY(-6px); outline: 0;
+    box-shadow: 0 0 0 1px var(--c), 0 30px 60px -20px rgba(0,0,0,.9), 0 0 70px -20px color-mix(in srgb, var(--c) 55%, transparent); }
+  a.card:hover img, a.card.active img { transform: scale(1.06); }
+  .meta { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: last baseline;
+    gap: 10px; padding: 46px 18px 16px; background: linear-gradient(transparent, rgba(4,8,7,.88)); }
+  .meta span { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; color: color-mix(in srgb, var(--c) 78%, white); }
+  .meta b { font-family: var(--serif); font-weight: 600; font-size: 22px; line-height: 1.1; text-align: right; text-wrap: balance; }
+  .meta span { white-space: nowrap; }
+  .card.locked { background: repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 12px, transparent 12px 24px), #0b1311; }
+  .card.locked i { position: absolute; inset: 0; display: grid; place-items: center; font: italic 700 96px var(--serif);
+    color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.14); }
+  .card.locked .meta { background: none; } .card.locked .meta span, .card.locked .meta b { color: var(--muted); font-weight: 400; font-size: 15px; }
+  .card.locked .meta span { font-size: 12px; }
+  .none { color: var(--muted); font-family: var(--serif); font-style: italic; font-size: 18px; }
+
+  @media (max-width: 860px) {
+    main { grid-template-columns: 1fr; padding-bottom: 48px; }
+    .stage { max-height: none; }
+    .ghost { top: 22%; }
+    .facts { gap: 8px 24px; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .card { border-radius: 18px; } .meta { padding: 30px 12px 12px; } .meta b { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="#home"><span class="dot"></span><strong>Living Pokédex</strong></a>
+  <div id="crumb">Kanto · Entry 001 / 151</div>
+</header>
+
+<div id="sky" aria-hidden="true"></div>
+
+<section id="home">
+  <h1>Pokédex</h1>
+  <p class="sub" id="count"></p>
+  <label class="search">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search by name or number" autocomplete="off" aria-label="Search Pokémon">
+  </label>
+  <div class="scroller" id="scroller">
+    <div class="grid" id="grid"></div>
+    <p class="none" id="none" hidden>No entries match that search.</p>
+  </div>
+</section>
+
+<main id="entry">
+  <div class="ghost" data-depth="-28" aria-hidden="true" id="ghost">001</div>
+
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+      <canvas id="gl" aria-label="3D depth view of the specimen"></canvas>
+      <div class="tag" id="tag" hidden>Placeholder specimen · add your render to /assets</div>
+    </div>
+  </div>
+
+  <section class="info" data-depth="14" id="info"></section>
+</main>
+
+<script>
+/* ------------------------------------------------------------------ *
+ *  DATA — add more entries here later; the page renders ENTRY below.
+ * ------------------------------------------------------------------ */
+const POKEDEX = [
+  {
+    no: 1,
+    name: "Bulbasaur",
+    species: "Seed Pokémon",
+    types: ["grass", "poison"],
+    height: "0.7 m", weight: "6.9 kg",
+    abilities: ["Overgrow", "Chlorophyll (hidden)"],
+    blurb: "A stout, four-legged creature that carries a plant bulb on its back from the day it hatches. " +
+           "The bulb drinks in sunlight and grows along with its host, storing energy the animal can live on " +
+           "for days when food is scarce. On bright afternoons it is usually found dozing in the open.",
+    stats: { HP: 45, Attack: 49, Defense: 49, "Sp. Atk": 65, "Sp. Def": 65, Speed: 45 },
+    // Colour image + matching greyscale depth map (white = near, black = far).
+    image: "assets/bulbasaur.png",
+    depth: "assets/bulbasaur-depth.png",
+  },
+  {
+    no: 2,
+    name: "Ivysaur",
+    species: "Seed Pokémon",
+    types: ["grass", "poison"],
+    height: "1.0 m", weight: "13.0 kg",
+    abilities: ["Overgrow", "Chlorophyll (hidden)"],
+    blurb: "The bulb on its back has swollen into a heavy bud ringed with broad leaves, and its legs have " +
+           "thickened to carry the weight. It spends long hours basking, because the bud feeds on sunlight. " +
+           "When the bud begins to give off a sweet scent, it is close to opening into a full flower.",
+    stats: { HP: 60, Attack: 62, Defense: 63, "Sp. Atk": 80, "Sp. Def": 80, Speed: 60 },
+    image: "assets/ivysaur.png",
+    depth: "assets/ivysaur-depth.png",
+  },
+  {
+    no: 3,
+    name: "Venusaur",
+    species: "Seed Pokémon",
+    types: ["grass", "poison"],
+    height: "2.0 m", weight: "100.0 kg",
+    abilities: ["Overgrow", "Chlorophyll (hidden)"],
+    blurb: "The bud has opened into an enormous flower on a thick trunk, shaded by a crown of fronds. " +
+           "It turns the bloom toward the sun to gather energy, and its colours grow more vivid the more " +
+           "light it takes in. After rain the flower's scent carries a long way and draws other creatures near.",
+    stats: { HP: 80, Attack: 82, Defense: 83, "Sp. Atk": 100, "Sp. Def": 100, Speed: 80 },
+    image: "assets/venusaur.png",
+    depth: "assets/venusaur-depth.png",
+  },
+  {
+    no: 3,
+    form: "mega",                      // "mega" or "gmax" switches on the starry page background
+    name: "Mega Venusaur",
+    species: "Seed Pokémon",
+    types: ["grass", "poison"],
+    height: "2.4 m", weight: "155.5 kg",
+    abilities: ["Thick Fat"],
+    blurb: "Mega Evolution drives its plant into overgrowth: the great flower spreads wider, vines spill " +
+           "down its flanks, and a second bloom opens on its forehead. Its legs and back thicken to carry " +
+           "the load, and a dense layer beneath the hide blunts both scorching heat and biting cold.",
+    stats: { HP: 80, Attack: 100, Defense: 123, "Sp. Atk": 122, "Sp. Def": 120, Speed: 80 },
+    image: "assets/venusaur-mega.jpg",
+    depth: "assets/venusaur-mega-depth.png",
+  },
+  {
+    no: 3,
+    form: "gmax",
+    name: "Gigantamax Venusaur",
+    species: "Seed Pokémon",
+    types: ["grass", "poison"],
+    height: "24.0+ m", weight: "???.? kg",      // officially unmeasured
+    abilities: ["Overgrow", "Chlorophyll (hidden)"],
+    blurb: "Gigantamax energy swells the flower until its petals drape over the body like a canopy, " +
+           "while two enormous vines sweep the ground around it. A haze of pollen pours from the crown " +
+           "of the bloom. Its Grass-type attacks become G-Max Vine Lash, which keeps lashing foes for turns afterward.",
+    stats: { HP: 80, Attack: 82, Defense: 83, "Sp. Atk": 100, "Sp. Def": 100, Speed: 80 },
+    image: "assets/venusaur-gmax.png",
+    depth: "assets/venusaur-gmax-depth.png",
+  },
+  {
+    no: 4,
+    name: "Charmander",
+    species: "Lizard Pokémon",
+    types: ["fire"],
+    height: "0.6 m", weight: "8.5 kg",
+    abilities: ["Blaze", "Solar Power (hidden)"],
+    blurb: "A small upright lizard with a flame burning at the tip of its tail from the moment it hatches. " +
+           "The flame mirrors its condition: it flickers low when the animal is tired and flares when it is " +
+           "excited or angry. It favours warm, dry places and keeps its tail well clear of the rain.",
+    stats: { HP: 39, Attack: 52, Defense: 43, "Sp. Atk": 60, "Sp. Def": 50, Speed: 65 },
+    image: "assets/charmander.png",
+    depth: "assets/charmander-depth.png",
+  },
+  {
+    no: 5,
+    name: "Charmeleon",
+    species: "Flame Pokémon",
+    types: ["fire"],
+    height: "1.1 m", weight: "19.0 kg",
+    abilities: ["Blaze", "Solar Power (hidden)"],
+    blurb: "Leaner and far shorter-tempered than its younger form, with a single horn swept back from its " +
+           "skull and long, sharp claws. It goes looking for fights, and the tail flame burns hotter and " +
+           "takes on a bluish-white edge as its temper rises. On mountain nights the glow can be seen from afar.",
+    stats: { HP: 58, Attack: 64, Defense: 58, "Sp. Atk": 80, "Sp. Def": 65, Speed: 80 },
+    image: "assets/charmeleon.png",
+    depth: "assets/charmeleon-depth.png",
+  },
+  {
+    no: 6,
+    name: "Charizard",
+    species: "Flame Pokémon",
+    types: ["fire", "flying"],
+    height: "1.7 m", weight: "90.5 kg",
+    abilities: ["Blaze", "Solar Power (hidden)"],
+    blurb: "Broad wings carry this heavy-bodied dragon-like creature high above the mountains, where it " +
+           "circles in search of opponents worth its effort. Its breath is hot enough to melt rock, yet it " +
+           "holds its fire against anything weaker than itself. The tail flame flares brightest after a hard fight.",
+    stats: { HP: 78, Attack: 84, Defense: 78, "Sp. Atk": 109, "Sp. Def": 85, Speed: 100 },
+    image: "assets/charizard.png",
+    depth: "assets/charizard-depth.png",
+  },
+  {
+    no: 6,
+    form: "mega",
+    name: "Mega Charizard X",
+    species: "Flame Pokémon",
+    types: ["fire", "dragon"],
+    height: "1.7 m", weight: "110.5 kg",
+    abilities: ["Tough Claws"],
+    blurb: "Mega Evolution turns its hide charcoal-black and its fire a searing blue, hot enough that the " +
+           "flames spill constantly from the corners of its jaws. It trades the open sky for raw strength, " +
+           "taking on a dragon's nature, and its hardened claws strike far harder at close range.",
+    stats: { HP: 78, Attack: 130, Defense: 111, "Sp. Atk": 130, "Sp. Def": 85, Speed: 100 },
+    image: "assets/charizard-mega-x.png",
+    depth: "assets/charizard-mega-x-depth.png",
+  },
+  {
+    no: 6,
+    form: "mega",
+    name: "Mega Charizard Y",
+    species: "Flame Pokémon",
+    types: ["fire", "flying"],
+    height: "1.7 m", weight: "100.5 kg",
+    abilities: ["Drought"],
+    blurb: "This Mega Evolution sharpens it for the sky: a long central horn sweeps back from its head, " +
+           "smaller wings sprout from its forearms, and its body grows sleeker. Wherever it appears the " +
+           "sun bears down harder, and in that harsh light its already fearsome fire burns hotter still.",
+    stats: { HP: 78, Attack: 104, Defense: 78, "Sp. Atk": 159, "Sp. Def": 115, Speed: 100 },
+    image: "assets/charizard-mega-y.png",
+    depth: "assets/charizard-mega-y-depth.png",
+  },
+  {
+    no: 6,
+    form: "gmax",
+    name: "Gigantamax Charizard",
+    species: "Flame Pokémon",
+    types: ["fire", "flying"],
+    height: "28.0+ m", weight: "???.? kg",      // officially unmeasured
+    abilities: ["Blaze", "Solar Power (hidden)"],
+    blurb: "Gigantamax energy swells it into a towering giant whose wings and horns are no longer flesh " +
+           "but roaring sheets of flame, with more fire pouring from its jaws and shoulders. Its " +
+           "Fire-type attacks become G-Max Wildfire, which leaves the battlefield burning for turns afterward.",
+    stats: { HP: 78, Attack: 84, Defense: 78, "Sp. Atk": 109, "Sp. Def": 85, Speed: 100 },
+    image: "assets/charizard-gmax.png",
+    depth: "assets/charizard-gmax-depth.png",
+  },
+];
+const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const pad3 = n => String(n).padStart(3, "0");
+// Type colours (from the owner's reference sheet; grass and poison keep the site's original shades).
+const TYPE_COLORS = {
+  normal: "#9399a0", fire: "#eba161", water: "#678fd0", electric: "#e9d359", grass: "#6fcf5c", ice: "#91ccc0",
+  fighting: "#b84c69", poison: "#b76fd6", ground: "#c67c4f", flying: "#98a7d9", psychic: "#e17979", bug: "#9bbf49",
+  rock: "#c2b790", ghost: "#5b69a7", dragon: "#406cbe", dark: "#595365", steel: "#6b8d9f", fairy: "#db94e1",
+};
+const FORMS = { mega: "Mega", gmax: "Gigantamax" };
+const SPECIES_COUNT = new Set(POKEDEX.map(p => p.no)).size;   // forms share a number
+
+/* ---- starry page background for special forms (Mega = pale, Gigantamax = red-pink) ---- */
+(function makeSky() {
+  const mega = ["#ffffff", "#cfeeff", "#e6d2ff", "#c9ffe2"], gmax = ["#ff4d6d", "#ff7aa2", "#ffa3c4", "#e8365a"];
+  const r = (a, b) => a + Math.random() * (b - a), pick = a => a[Math.floor(Math.random() * a.length)];
+  let html = "";
+  for (let i = 0; i < 130; i++) {
+    const spark = i % 6 === 0, size = spark ? r(7, 13) : r(1.2, 3);
+    html += `<i class="${spark ? "x" : ""}" style="left:${r(0, 100)}%;top:${r(0, 100)}%;width:${size}px;height:${size}px;` +
+            `--m:${pick(mega)};--g:${pick(gmax)};--a:${r(.45, 1)};--d:${r(2.4, 7)}s;--o:${-r(0, 7)}s"></i>`;
+  }
+  document.getElementById("sky").innerHTML = html;
+})();
+
+/* ------------------------------ home page -------------------------- */
+const TOTAL = 151, TEASERS = 6;   // a few "coming soon" tiles after the last recorded entry
+(function renderHome() {
+  document.getElementById("count").textContent = `Kanto region · ${SPECIES_COUNT} of ${TOTAL} recorded`;
+  const grid = document.getElementById("grid");
+  const last = POKEDEX[POKEDEX.length - 1].no;
+  let html = POKEDEX.map(p => `
+    <a class="card" style="--c:${TYPE_COLORS[p.types[0]]}" data-t1="${TYPE_COLORS[p.types[0]]}" data-t2="${TYPE_COLORS[p.types[1] || p.types[0]]}" href="#${slug(p)}" data-find="${pad3(p.no)} ${p.no} ${p.name.toLowerCase()} ${(FORMS[p.form] || "").toLowerCase()}">
+      <img src="${p.image}" alt="" loading="lazy">
+      ${p.form ? `<em class="form ${p.form}">${FORMS[p.form]}</em>` : ""}
+      <div class="meta"><span>#${pad3(p.no)}</span><b>${p.name}</b></div>
+    </a>`).join("");
+  for (let n = last + 1; n <= Math.min(TOTAL, last + TEASERS); n++) html += `
+    <div class="card locked"><i>?</i><div class="meta"><span>#${pad3(n)}</span><b>Coming soon</b></div></div>`;
+  grid.innerHTML = html;
+  // Hovering (or keyboard-focusing) a card re-themes the whole home page to that Pokémon's type.
+  const root = document.documentElement.style;
+  const theme = card => {
+    if (document.body.dataset.view !== "home") return;
+    if (card) { root.setProperty("--t1", card.dataset.t1); root.setProperty("--t2", card.dataset.t2); }
+    else { root.removeProperty("--t1"); root.removeProperty("--t2"); }
+  };
+  grid.addEventListener("mouseover", e => theme(e.target.closest("a.card")));
+  grid.addEventListener("mouseleave", () => theme(null));
+  grid.addEventListener("focusin", e => theme(e.target.closest("a.card")));
+  grid.addEventListener("focusout", () => theme(null));
+
+  // Touch screens have no hover: theme the page to the card nearest the middle of the screen.
+  // Cards in the same row are staggered left-to-right so each gets its turn as you scroll.
+  if (matchMedia("(hover: none)").matches) {
+    let queued = false, active = null;
+    const pick = () => {
+      queued = false;
+      if (document.body.dataset.view !== "home") return;
+      // middle of the visible part of the entries area
+      const sr = scroller.getBoundingClientRect();
+      const top = Math.max(sr.top, 0), mid = top + (Math.min(sr.bottom, innerHeight) - top) * .38;
+      const inner = scroller.scrollHeight > scroller.clientHeight + 1;      // entries scroll inside the page
+      const atTop = inner ? scroller.scrollTop <= 2 : scrollY <= 2;
+      let best = null, bestD = Infinity;
+      for (const c of grid.querySelectorAll("a.card:not([hidden])")) {
+        const r = c.getBoundingClientRect();
+        const y = r.top + r.height / 2 + ((r.left + r.width / 2) / innerWidth - .5) * r.height;
+        const d = Math.abs(y - mid);
+        if (d < bestD) { bestD = d; best = c; }
+      }
+      if (atTop) best = grid.querySelector("a.card:not([hidden])");        // first card gets its turn at the very top
+      if (best === active) return;
+      if (active) active.classList.remove("active");
+      active = best;
+      if (active) active.classList.add("active");
+      theme(active);
+    };
+    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(pick); } };
+    const scroller = document.getElementById("scroller");
+    scroller.addEventListener("scroll", queue, { passive: true });
+    addEventListener("scroll", queue, { passive: true });
+    addEventListener("resize", queue);
+    addEventListener("hashchange", () => { active = null; setTimeout(queue, 50); });
+    document.getElementById("q").addEventListener("input", () => { active = null; queue(); });
+    queue();
+  }
+  document.getElementById("q").addEventListener("input", e => {
+    const q = e.target.value.trim().toLowerCase().replace(/^#/, "");
+    let hits = 0;
+    for (const c of grid.children) {
+      const ok = c.dataset.find ? c.dataset.find.includes(q) : !q;
+      c.hidden = !ok; if (ok) hits++;
+    }
+    document.getElementById("none").hidden = hits > 0;
+  });
+})();
+
+/* ---------------------------- info panel --------------------------- */
+function renderInfo(p) {
+  const pad = pad3(p.no), i = POKEDEX.indexOf(p), prev = POKEDEX[i - 1], next = POKEDEX[i + 1];
+  document.title = `${pad} ${p.name} — Living Pokédex`;
+  document.getElementById("crumb").textContent = `Kanto · Entry ${pad} / 151` + (p.form ? ` · ${FORMS[p.form]}` : "");
+  document.getElementById("ghost").textContent = pad;
+  document.getElementById("info").innerHTML = `
+    <a class="back" href="#home">‹ Pokédex</a>
+    <div class="no">No. ${pad}${p.form ? ` <em class="form ${p.form}">${FORMS[p.form]}</em>` : ""}</div>
+    <h1>${p.name}</h1>
+    <div class="species">${p.species}</div>
+    <div class="types">${p.types.map(t => `<span class="type" style="--c:${TYPE_COLORS[t]}">${t}</span>`).join("")}</div>
+    <p class="blurb">${p.blurb}</p>
+    <dl class="facts">
+      <div><dt>Height</dt><dd>${p.height}</dd></div>
+      <div><dt>Weight</dt><dd>${p.weight}</dd></div>
+      <div><dt>Abilities</dt><dd>${p.abilities[0]}<br><small>${p.abilities.slice(1).join(", ")}</small></dd></div>
+    </dl>
+    <div class="stats">
+      ${Object.entries(p.stats).map(([k, v]) => `
+        <div class="stat"><span>${k}</span><b>${v}</b><div class="bar"><i data-w="${Math.min(100, v / 1.5)}"></i></div></div>`).join("")}
+    </div>
+    <nav class="pager" aria-label="Entries">
+      ${prev ? `<a href="#${slug(prev)}"><span>← Previous</span>${pad3(prev.no)} ${prev.name}</a>` : `<span class="off"><span>← Previous</span>—</span>`}
+      ${next ? `<a href="#${slug(next)}" class="r"><span>Next →</span>${pad3(next.no)} ${next.name}</a>` : `<span class="off r"><span>Next →</span>Coming soon</span>`}
+    </nav>`;
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    document.querySelectorAll(".bar i").forEach(i => i.style.width = i.dataset.w + "%")));
+}
+
+/* ------------------------------------------------------------------ *
+ *  INPUT — mouse, touch and device tilt all feed one target vector
+ *  in the range -1..1, which is smoothed every frame.
+ * ------------------------------------------------------------------ */
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const target = { x: 0, y: 0 }, cur = { x: 0, y: 0 };
+const TOUCH = matchMedia("(hover: none)").matches;
+let lastInput = -1e9;
+const clamp = (v, a = -1, b = 1) => Math.max(a, Math.min(b, v));
+function setTarget(x, y) { target.x = clamp(x); target.y = clamp(y); lastInput = performance.now(); }
+function fromPoint(px, py) { setTarget(px / innerWidth * 2 - 1, py / innerHeight * 2 - 1); }
+
+addEventListener("mousemove", e => fromPoint(e.clientX, e.clientY));
+addEventListener("touchstart", e => fromPoint(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+addEventListener("touchmove",  e => fromPoint(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+
+// Gyroscope: tilt relative to how the phone is being held. The resting position slowly
+// follows the phone, so the picture re-centres if you shift how you hold it.
+let base = null;
+function onTilt(e) {
+  if (e.gamma == null || e.beta == null) return;
+  const a = (screen.orientation && screen.orientation.angle) || 0;   // handle landscape
+  const lr = a === 90 ? e.beta : a === 270 ? -e.beta : e.gamma;
+  const fb = a === 90 ? -e.gamma : a === 270 ? e.gamma : e.beta;
+  if (!base) base = { lr, fb };
+  base.lr += (lr - base.lr) * .01; base.fb += (fb - base.fb) * .01;
+  setTarget((lr - base.lr) / 18, (fb - base.fb) / 18);
+}
+if (window.DeviceOrientationEvent) {
+  // Listen straight away: browsers that need no permission start sending readings at once.
+  addEventListener("deviceorientation", onTilt);
+  if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    // iPhone/iPad (and some newer browsers) only send readings after the user taps and allows it.
+    let settled = false;
+    const ask = () => {
+      if (settled) return;
+      DeviceOrientationEvent.requestPermission()
+        .then(() => { settled = true; })
+        .catch(() => {});                              // not a valid tap yet; try again on the next one
+    };
+    addEventListener("click", ask);
+    addEventListener("touchend", ask);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  DEPTH WINDOW — WebGL shader that shifts every pixel by an amount
+ *  proportional to its depth, so near things slide over far things.
+ * ------------------------------------------------------------------ */
+const canvas = document.getElementById("gl");
+const stage = document.getElementById("stage");
+const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
+
+const VERT = `attribute vec2 p; varying vec2 v; void main(){ v = p*.5+.5; gl_Position = vec4(p,0.,1.); }`;
+const FRAG = `
+precision highp float;
+varying vec2 v;
+uniform sampler2D uImg, uDepth;
+uniform vec2 uOff, uCover;
+const float FOCUS = 0.45;   // depth that stays still; nearer and farther move opposite ways
+void main(){
+  vec2 uv = (v - .5) * uCover + .5;           // cover-fit; edge pixels repeat past the border
+  // March from the nearest depth to the farthest and stop at the first surface the
+  // view ray meets. Near surfaces correctly cover far ones, so edges don't tear or ghost.
+  vec2 q = uv;
+  float pt = 1., pd = 0., hit = 0.;
+  for (int i = 0; i < 24; i++) {
+    float t = 1. - float(i) / 23.;
+    float d = texture2D(uDepth, uv + uOff * (t - FOCUS)).r;
+    if (d >= t) { float a = pt - pd, b = d - t; hit = mix(pt, t, a / max(a + b, 1e-4)); break; }
+    pt = t; pd = d;
+  }
+  q = uv + uOff * (hit - FOCUS);
+  gl_FragColor = texture2D(uImg, q);
+}`;
+
+let prog, uOff, uCover, imgAspect = 1;
+function compile(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const textures = [];
+function makeTexture(unit, source) {
+  const t = textures[unit] || (textures[unit] = gl.createTexture());
+  gl.activeTexture(gl.TEXTURE0 + unit);
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+}
+function initGL() {
+  prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "p");
+  gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  gl.uniform1i(gl.getUniformLocation(prog, "uImg"), 0);
+  gl.uniform1i(gl.getUniformLocation(prog, "uDepth"), 1);
+  uOff = gl.getUniformLocation(prog, "uOff");
+  uCover = gl.getUniformLocation(prog, "uCover");
+}
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const w = Math.round(stage.clientWidth * dpr), h = Math.round(stage.clientHeight * dpr);
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+  gl.viewport(0, 0, w, h);
+  const ca = w / h;
+  gl.uniform2f(uCover, ca > imgAspect ? 1 : ca / imgAspect, ca > imgAspect ? imgAspect / ca : 1);
+}
+
+/* ---- image loading, with graceful fallbacks ---- */
+const loadImage = src => new Promise((ok, no) => {
+  const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src;
+});
+
+// Soft "centre is closer" depth, used when a photo has no depth map yet.
+function radialDepth() {
+  const c = document.createElement("canvas"); c.width = c.height = 256;
+  const x = c.getContext("2d");
+  const g = x.createRadialGradient(128, 140, 10, 128, 140, 170);
+  g.addColorStop(0, "#fff"); g.addColorStop(.55, "#777"); g.addColorStop(1, "#111");
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+  return c;
+}
+
+// Procedural stand-in: a lit seed pod on mossy ground, with an exact depth map.
+function placeholder(N = 768) {
+  const mk = () => { const c = document.createElement("canvas"); c.width = c.height = N; return c; };
+  const cc = mk(), dc = mk();
+  const cx = cc.getContext("2d"), dx = dc.getContext("2d");
+  const ci = cx.createImageData(N, N), di = dx.createImageData(N, N);
+  const hash = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
+  const noise = (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), w = yf * yf * (3 - 2 * yf);
+    return (hash(xi, yi) * (1 - u) + hash(xi + 1, yi) * u) * (1 - w) +
+           (hash(xi, yi + 1) * (1 - u) + hash(xi + 1, yi + 1) * u) * w;
+  };
+  const fbm = (x, y) => noise(x, y) * .5 + noise(x * 2.1, y * 2.1) * .3 + noise(x * 4.3, y * 4.3) * .2;
+  const mix = (a, b, t) => a + (b - a) * t;
+  const sm = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const bokeh = [[.2,.25,.09],[.78,.18,.12],[.62,.38,.06],[.1,.5,.07],[.9,.48,.08],[.4,.12,.05]];
+  const L = [-.45, -.6, .66];
+
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const u = i / N, w = j / N, k = (j * N + i) * 4;
+    // far background: dim forest light
+    const n = fbm(u * 3, w * 3);
+    let r = mix(8, 26, n) , g = mix(20, 58, n) * (1.1 - w * .5), b = mix(16, 40, n), d = .04 + n * .06;
+    for (const [bx, by, br] of bokeh) {
+      const t = 1 - sm(br * .6, br, Math.hypot(u - bx, w - by));
+      r += 60 * t; g += 95 * t; b += 55 * t;
+    }
+    // ground plane, rising toward the viewer
+    const horizon = .66 + (fbm(u * 6, 1) - .5) * .02;
+    if (w > horizon) {
+      const t = (w - horizon) / (1 - horizon), m = fbm(u * 26 / (0.4 + t), w * 60);
+      const a = sm(0, .03, w - horizon);
+      const sh = 1 - .75 * Math.exp(-(((u - .52) / .2) ** 2 + ((w - .8) / .05) ** 2)); // contact shadow
+      r = mix(r, mix(14, 52, m) * sh, a); g = mix(g, mix(30, 92, m) * sh, a); b = mix(b, mix(16, 40, m) * sh, a);
+      d = mix(d, .2 + t * .6, a);
+    }
+    // seed pod: teardrop, tapered to a tip at the top
+    const py = (w - .56) / .25;
+    const taper = py < 0 ? 1 - .5 * Math.pow(-py, 1.6) : 1;
+    const px = (u - .5) / (.2 * Math.max(taper, .05));
+    const rr = px * px + py * py;
+    if (rr < 1) {
+      const z = Math.sqrt(1 - rr), a = sm(0, .14, z);
+      const ridge = .5 + .5 * Math.cos(Math.atan2(px, z + .25) * 7);
+      const mott = fbm(u * 40, w * 40);
+      const diff = Math.max(0, -(px * L[0] + py * L[1]) + z * L[2]);
+      const spec = Math.pow(Math.max(0, diff - .08), 22) * 1.6;
+      const rim = Math.pow(1 - z, 3) * .55;
+      const lit = .16 + diff * .95;
+      const br = mix(34, 70, ridge) + mott * 22, bg = mix(118, 176, ridge) + mott * 26, bb = mix(92, 120, ridge);
+      r = mix(r, br * lit + 255 * spec + 90 * rim, a);
+      g = mix(g, bg * lit + 255 * spec + 190 * rim, a);
+      b = mix(b, bb * lit + 245 * spec + 150 * rim, a);
+      d = mix(d, .6 + .4 * z, a);
+    }
+    ci.data[k] = r; ci.data[k + 1] = g; ci.data[k + 2] = b; ci.data[k + 3] = 255;
+    di.data[k] = di.data[k + 1] = di.data[k + 2] = d * 255; di.data[k + 3] = 255;
+  }
+  cx.putImageData(ci, 0, 0); dx.putImageData(di, 0, 0);
+  return { image: cc, depth: dc };
+}
+
+async function loadSpecimen(p) {
+  try {
+    const image = await loadImage(p.image);
+    let depth; try { depth = await loadImage(p.depth); } catch { depth = radialDepth(); }
+    return { image, depth, real: true };
+  } catch { return { ...placeholder(), real: false }; }
+}
+
+/* ---- switching entries: the #name in the address picks the entry ---- */
+let current = null, showing = 0;
+async function show() {
+  const p = POKEDEX.find(e => "#" + slug(e) === location.hash) || null;
+  document.body.dataset.view = p ? "entry" : "home";
+  document.body.dataset.form = (p && p.form) || "";
+  // Page tint follows the entry's primary type (second glow: secondary type, or primary again).
+  const root = document.documentElement.style;
+  if (p) { root.setProperty("--t1", TYPE_COLORS[p.types[0]]); root.setProperty("--t2", TYPE_COLORS[p.types[1] || p.types[0]]); }
+  else { root.removeProperty("--t1"); root.removeProperty("--t2"); }
+  if (!p) {
+    current = null; ++showing;
+    document.title = "Living Pokédex — Kanto";
+    document.getElementById("crumb").textContent = "Kanto region";
+    return;
+  }
+  if (p === current) return;
+  current = p;
+  scrollTo(0, 0);
+  const ticket = ++showing;
+  renderInfo(p);
+  canvas.style.opacity = 0;
+  const s = await loadSpecimen(p);
+  if (ticket !== showing) return;            // a newer switch overtook this one
+  try { makeTexture(0, s.image); makeTexture(1, s.depth); }
+  catch { const f = placeholder(); makeTexture(0, f.image); makeTexture(1, f.depth); s.image = f.image; s.real = false; }
+  imgAspect = s.image.width / s.image.height;
+  document.getElementById("tag").hidden = s.real;
+  resize();
+  canvas.style.opacity = 1;
+}
+
+/* ------------------------------- loop ------------------------------ */
+const layers = [...document.querySelectorAll("[data-depth]")];
+const STRENGTH = 0.03;   // how far pixels travel; raise for a deeper effect
+
+function frame(t) {
+  // With no recent input, drift gently so the scene always feels alive.
+  if (!reduceMotion && t - lastInput > (TOUCH ? 900 : 2500)) {
+    if (TOUCH) {
+      // Phones without tilt data: a fuller automatic sway, plus the image shifts as the page scrolls,
+      // so the depth is visible without having to drag a finger over it.
+      const r = stage.getBoundingClientRect();
+      const scroll = clamp((r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2));
+      target.x = Math.sin(t / 1700) * .85;
+      target.y = clamp(Math.cos(t / 2300) * .4 + scroll * .7);
+    } else {
+      target.x = Math.sin(t / 2300) * .55; target.y = Math.cos(t / 3100) * .35;
+    }
+  }
+  cur.x += (target.x - cur.x) * .07; cur.y += (target.y - cur.y) * .07;
+
+  gl.uniform2f(uOff, -cur.x * STRENGTH, cur.y * STRENGTH);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  stage.style.transform = `rotateY(${cur.x * 7}deg) rotateX(${-cur.y * 7}deg)`;
+  for (const el of layers) {
+    const k = +el.dataset.depth;
+    const base = el.classList.contains("ghost") ? "translate3d(0,-50%,0) " : "";
+    el.style.transform = `${base}translate3d(${-cur.x * k}px, ${-cur.y * k}px, 0)`;
+  }
+  requestAnimationFrame(frame);
+}
+
+(async function start() {
+  if (!gl) { document.getElementById("tag").hidden = false;
+             document.getElementById("tag").textContent = "WebGL unavailable in this browser"; return; }
+  initGL();
+  await show();
+  new ResizeObserver(resize).observe(stage);
+  requestAnimationFrame(frame);
+  addEventListener("hashchange", show);
+  addEventListener("keydown", e => {
+    if (!current) return;
+    const i = POKEDEX.indexOf(current), to = POKEDEX[i + (e.key === "ArrowRight") - (e.key === "ArrowLeft")];
+    if (to && to !== current) location.hash = slug(to);
+  });
+})();
+</script>
+</body>
+</html>
