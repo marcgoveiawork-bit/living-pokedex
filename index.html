@@ -463,6 +463,21 @@ const POKEDEX = [
     image: "assets/blastoise.png",
     depth: "assets/blastoise-depth.png",
   },
+  {
+    no: 9,
+    form: "mega",
+    name: "Mega Blastoise",
+    species: "Shellfish Pokémon",
+    types: ["water"],
+    height: "1.6 m", weight: "101.1 kg",
+    abilities: ["Mega Launcher"],
+    blurb: "Mega Evolution fuses its two shell cannons into one enormous barrel rising from the centre of " +
+           "its back, and adds a smaller cannon housed in a shell on each forearm. It can fire all three at " +
+           "once, and the main barrel hurls water with enough force to be felt from a great distance.",
+    stats: { HP: 79, Attack: 103, Defense: 120, "Sp. Atk": 135, "Sp. Def": 115, Speed: 78 },
+    image: "assets/blastoise-mega.png",
+    depth: "assets/blastoise-mega-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");

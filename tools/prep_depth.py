@@ -45,7 +45,9 @@ if "--clear" in sys.argv:
         near[y0:y1, x0:x1] = False
 fg = ((sat > 28) | (rgb.min(2) < 150) | near).astype(np.uint8) * 255
 fg = Image.fromarray(fg).filter(ImageFilter.MedianFilter(odd(5)))             # drop speckle
-flood = fg.copy()
+# Close thin gaps (e.g. a bright highlight along a metal edge) so pale areas inside the subject
+# are properly enclosed before the hole-filling below.
+flood = fg.filter(ImageFilter.MaxFilter(odd(9))).filter(ImageFilter.MinFilter(odd(9)))
 from PIL import ImageDraw
 for xy in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1), (w // 2, 0)]:
     if flood.getpixel(xy) == 0: ImageDraw.floodfill(flood, xy, 128)
