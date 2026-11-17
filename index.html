@@ -164,6 +164,10 @@
   .form.gmax { color: #fff; background: linear-gradient(100deg, #e8365a, #ff7aa2); }
   .card .form { position: absolute; top: 14px; right: 14px; margin: 0; z-index: 1; }
 
+  .legal { max-width: 78ch; margin: 44px auto 0; text-align: center; font-size: 11.5px; line-height: 1.7;
+    color: var(--muted); opacity: .75; }
+  main .legal { grid-column: 1 / -1; position: relative; z-index: 2; margin-top: 10px; }
+
   /* Home */
   body[data-view="home"] main, body[data-view="entry"] #home { display: none; }
   #home { --pad: clamp(20px, 4vw, 56px); max-width: 1400px; margin: 0 auto; padding: 10px var(--pad) 80px; }
@@ -234,6 +238,7 @@
   <div class="scroller" id="scroller">
     <div class="grid" id="grid"></div>
     <p class="none" id="none" hidden>No entries match that search.</p>
+    <p class="legal"></p>
   </div>
 </section>
 
@@ -248,6 +253,7 @@
   </div>
 
   <section class="info" data-depth="14" id="info"></section>
+  <p class="legal"></p>
 </main>
 
 <script>
@@ -426,6 +432,13 @@ const TYPE_COLORS = {
 };
 const FORMS = { mega: "Mega", gmax: "Gigantamax" };
 const SPECIES_COUNT = new Set(POKEDEX.map(p => p.no)).size;   // forms share a number
+
+/* ---- fan-project notice, shown at the foot of the home grid and of every entry ---- */
+const LEGAL = "Living Pokédex is an unofficial, non-commercial fan project made for personal enjoyment. " +
+  "It is not affiliated with, endorsed or sponsored by Nintendo, Game Freak, Creatures Inc. or The Pokémon Company. " +
+  "Pokémon and all related names, characters and game data are trademarks and © of their respective owners. " +
+  "The images are fan-made, AI-generated interpretations and are not official artwork.";
+document.querySelectorAll(".legal").forEach(el => el.textContent = LEGAL);
 
 /* ---- starry page background for special forms (Mega = pale, Gigantamax = red-pink) ---- */
 (function makeSky() {

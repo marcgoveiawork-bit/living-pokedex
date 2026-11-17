@@ -10,5 +10,9 @@ a finger drag, or phone tilt.
 
 To view locally, serve the folder (for example `python3 -m http.server`) and open the address it prints.
 
-Unofficial fan project. Pokémon and all related names are trademarks of Nintendo, Game Freak and
-The Pokémon Company.
+## Notice
+
+Living Pokédex is an unofficial, non-commercial fan project made for personal enjoyment. It is not
+affiliated with, endorsed or sponsored by Nintendo, Game Freak, Creatures Inc. or The Pokémon Company.
+Pokémon and all related names, characters and game data are trademarks and © of their respective
+owners. The images are fan-made, AI-generated interpretations and are not official artwork.
