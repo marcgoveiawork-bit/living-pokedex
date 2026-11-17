@@ -521,6 +521,35 @@ const POKEDEX = [
     image: "assets/metapod.png",
     depth: "assets/metapod-depth.png",
   },
+  {
+    no: 12,
+    name: "Butterfree",
+    species: "Butterfly Pokémon",
+    types: ["bug", "flying"],
+    height: "1.1 m", weight: "32.0 kg",
+    abilities: ["Compound Eyes", "Tinted Lens (hidden)"],
+    blurb: "A large butterfly with a fuzzy purple body, big red compound eyes and broad white wings veined " +
+           "in black. The wings are coated in fine scales that shed water, so it can fly in the rain, and " +
+           "it scatters clouds of powder from them when threatened. It ranges far each day in search of nectar.",
+    stats: { HP: 60, Attack: 45, Defense: 50, "Sp. Atk": 90, "Sp. Def": 80, Speed: 70 },
+    image: "assets/butterfree.png",
+    depth: "assets/butterfree-depth.png",
+  },
+  {
+    no: 12,
+    form: "gmax",
+    name: "Gigantamax Butterfree",
+    species: "Butterfly Pokémon",
+    types: ["bug", "flying"],
+    height: "17.0+ m", weight: "???.? kg",      // officially unmeasured
+    abilities: ["Compound Eyes", "Tinted Lens (hidden)"],
+    blurb: "Gigantamax energy stretches its wings into vast, glowing sails that dwarf the body between " +
+           "them. Each beat sends shimmering scales drifting over everything below. Its Bug-type attacks " +
+           "become G-Max Befuddle, which leaves foes poisoned, paralysed or asleep.",
+    stats: { HP: 60, Attack: 45, Defense: 50, "Sp. Atk": 90, "Sp. Def": 80, Speed: 70 },
+    image: "assets/butterfree-gmax.png",
+    depth: "assets/butterfree-gmax-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
