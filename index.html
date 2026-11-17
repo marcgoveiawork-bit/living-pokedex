@@ -478,6 +478,21 @@ const POKEDEX = [
     image: "assets/blastoise-mega.png",
     depth: "assets/blastoise-mega-depth.png",
   },
+  {
+    no: 9,
+    form: "gmax",
+    name: "Gigantamax Blastoise",
+    species: "Shellfish Pokémon",
+    types: ["water"],
+    height: "25.0+ m", weight: "???.? kg",      // officially unmeasured
+    abilities: ["Torrent", "Rain Dish (hidden)"],
+    blurb: "Gigantamax energy turns its shell into a floating fortress, studded with dozens of cannons of " +
+           "every size pointing in all directions. It is said to be less than precise with them, simply " +
+           "overwhelming its target with volume. Its Water-type attacks become G-Max Cannonade, which keeps battering foes for turns afterward.",
+    stats: { HP: 79, Attack: 83, Defense: 100, "Sp. Atk": 85, "Sp. Def": 105, Speed: 78 },
+    image: "assets/blastoise-gmax.png",
+    depth: "assets/blastoise-gmax-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
