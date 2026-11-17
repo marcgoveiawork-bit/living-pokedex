@@ -57,6 +57,15 @@ soft = np.asarray(fg.filter(ImageFilter.GaussianBlur(2 * k))).astype(float) / 25
 if "--fill" in sys.argv:
     x0, y0, x1, y1 = map(int, sys.argv[sys.argv.index("--fill") + 1].split(","))
     box = np.zeros((h, w), bool); box[y0:y1, x0:x1] = True
+    # Inside the box use a looser colour test, so pale or metallic parts (grey cannons, smoke)
+    # that look almost like backdrop still count as subject.
+    plain = box & ~(np.asarray(fg) > 0)
+    backdrop = np.median(rgb.min(2)[plain]) if plain.any() else 240          # local backdrop brightness
+    loose = box & ((np.abs(rgb.min(2) - backdrop) > 6) | (sat > 14))
+    loose = np.asarray(Image.fromarray((loose * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(odd(5)))
+                       .filter(ImageFilter.MaxFilter(odd(9))).filter(ImageFilter.MinFilter(odd(5)))) > 0
+    fg = Image.fromarray(np.where(loose & box, 255, np.asarray(fg)).astype(np.uint8))
+    soft = np.asarray(fg.filter(ImageFilter.GaussianBlur(2 * k))).astype(float) / 255
     subj = np.asarray(fg) > 0
     hole = box & subj & (d < bg + 0.25 * (d[subj].max() - bg))
     # Use the depth of the adjoining, correctly-measured part of the subject (e.g. the tail tip).

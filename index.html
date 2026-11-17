@@ -449,6 +449,20 @@ const POKEDEX = [
     image: "assets/wartortle.png",
     depth: "assets/wartortle-depth.png",
   },
+  {
+    no: 9,
+    name: "Blastoise",
+    species: "Shellfish Pokémon",
+    types: ["water"],
+    height: "1.6 m", weight: "85.5 kg",
+    abilities: ["Torrent", "Rain Dish (hidden)"],
+    blurb: "A massive, heavy-shelled turtle with two steel-like cannons jutting from the top of its shell. " +
+           "It plants its feet, braces its weight and fires jets of water with enough force to punch through " +
+           "thick steel. The shell is deliberately heavy, so the recoil does not knock it off its feet.",
+    stats: { HP: 79, Attack: 83, Defense: 100, "Sp. Atk": 85, "Sp. Def": 105, Speed: 78 },
+    image: "assets/blastoise.png",
+    depth: "assets/blastoise-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
