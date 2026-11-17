@@ -20,6 +20,8 @@ Single-page site: `index.html` (home grid + entry view, hash-routed), images in 
    (never the Pokémon image background) shows tiny pale stars/sparkles fading in and out.
 4. **Gigantamax entries** (`form: "gmax"`): same idea, but the tiny stars are red-pink.
    Both are driven by the `form` field; the stars live in `#sky` in `index.html`.
+   Regional forms (e.g. `form: "alola"`, shown as an "Alolan" badge) also share the base number but get
+   no star background unless the owner asks for one.
 5. **Page colour follows the primary type.** Each entry page takes its background tint, image glow and
    accent colour from the Pokémon's primary type (grass = green, fire = orange, ...), using
    `TYPE_COLORS` in `index.html` (sampled from the owner's type-colour reference sheet). The secondary

@@ -112,7 +112,7 @@
     font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
     padding: 7px 16px; border-radius: 999px; border: 1px solid currentColor;
   }
-  .type { color: var(--c); background: color-mix(in srgb, var(--c) 11%, transparent); }
+  .type { color: color-mix(in srgb, var(--c), white var(--lift, 0%)); background: color-mix(in srgb, var(--c) 11%, transparent); }
   .blurb { max-width: 46ch; line-height: 1.65; color: #cbd6ce; font-size: 16px; }
 
   .facts {
@@ -162,6 +162,7 @@
     padding: 4px 10px; border-radius: 999px; margin-left: 10px; vertical-align: 1px; }
   .form.mega { color: #0b1512; background: linear-gradient(100deg, #cfeeff, #e6d2ff 50%, #c9ffe2); }
   .form.gmax { color: #fff; background: linear-gradient(100deg, #e8365a, #ff7aa2); }
+  .form.alola { color: #1a1206; background: linear-gradient(100deg, #ffd27a, #ff9d6b); }
   .card .form { position: absolute; top: 14px; right: 14px; margin: 0; z-index: 1; }
 
   .legal { max-width: 78ch; margin: 44px auto 0; text-align: center; font-size: 11.5px; line-height: 1.7;
@@ -664,6 +665,35 @@ const POKEDEX = [
     image: "assets/pidgeot-mega.png",
     depth: "assets/pidgeot-mega-depth.png",
   },
+  {
+    no: 19,
+    name: "Rattata",
+    species: "Mouse Pokémon",
+    types: ["normal"],
+    height: "0.3 m", weight: "3.5 kg",
+    abilities: ["Run Away", "Guts, Hustle (hidden)"],
+    blurb: "A small purple rodent with a curled tail and large front teeth that never stop growing, so it " +
+           "gnaws on anything hard to keep them worn down. It is wary and quick to bolt, will eat almost " +
+           "anything, and settles wherever food can be found. Where one is seen, many more are living nearby.",
+    stats: { HP: 30, Attack: 56, Defense: 35, "Sp. Atk": 25, "Sp. Def": 35, Speed: 72 },
+    image: "assets/rattata.png",
+    depth: "assets/rattata-depth.png",
+  },
+  {
+    no: 19,
+    form: "alola",
+    name: "Alolan Rattata",
+    species: "Mouse Pokémon",
+    types: ["dark", "normal"],
+    height: "0.3 m", weight: "3.8 kg",
+    abilities: ["Gluttony", "Hustle, Thick Fat (hidden)"],
+    blurb: "The Rattata of the Alola islands turned nocturnal and moved into towns, and over time their fur " +
+           "darkened to black. They live in large nests under a leader, raid kitchens and stores at night, " +
+           "and are choosy enough about fresh food that they can sniff out the best of it from afar.",
+    stats: { HP: 30, Attack: 56, Defense: 35, "Sp. Atk": 25, "Sp. Def": 35, Speed: 72 },
+    image: "assets/rattata-alola.png",
+    depth: "assets/rattata-alola-depth.png",
+  },
 ];
 const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
@@ -673,7 +703,7 @@ const TYPE_COLORS = {
   fighting: "#b84c69", poison: "#b76fd6", ground: "#c67c4f", flying: "#98a7d9", psychic: "#e17979", bug: "#9bbf49",
   rock: "#c2b790", ghost: "#5b69a7", dragon: "#406cbe", dark: "#595365", steel: "#6b8d9f", fairy: "#db94e1",
 };
-const FORMS = { mega: "Mega", gmax: "Gigantamax" };
+const FORMS = { mega: "Mega", gmax: "Gigantamax", alola: "Alolan" };   // regional forms get a badge, no stars
 const SPECIES_COUNT = new Set(POKEDEX.map(p => p.no)).size;   // forms share a number
 
 /* ---- fan-project notice, shown at the foot of the home grid and of every entry ---- */
@@ -780,7 +810,7 @@ function renderInfo(p) {
     <div class="no">No. ${pad}${p.form ? ` <em class="form ${p.form}">${FORMS[p.form]}</em>` : ""}</div>
     <h1>${p.name}</h1>
     <div class="species">${p.species}</div>
-    <div class="types">${p.types.map(t => `<span class="type" style="--c:${TYPE_COLORS[t]}">${t}</span>`).join("")}</div>
+    <div class="types">${p.types.map(t => `<span class="type" style="--c:${TYPE_COLORS[t]}${t === "dark" ? ";--lift:45%" : ""}">${t}</span>`).join("")}</div>
     <p class="blurb">${p.blurb}</p>
     <dl class="facts">
       <div><dt>Height</dt><dd>${p.height}</dd></div>
