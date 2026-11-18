@@ -900,6 +900,35 @@ const POKEDEX = [
     depth: "assets/raichu-mega-y-depth.png",
   },
   {
+    no: 27,
+    name: "Sandshrew",
+    species: "Mouse Pokémon",
+    types: ["ground"],
+    height: "0.6 m", weight: "12.0 kg",
+    abilities: ["Sand Veil", "Sand Rush (hidden)"],
+    blurb: "A small burrower covered in tough, sand-coloured plates, at home in dry country with little " +
+           "rain. It digs deep to stay out of the heat and comes up to hunt. When threatened it curls " +
+           "into a tight ball, and its hide soaks up so little water that it stays dry even in damp ground.",
+    stats: { HP: 50, Attack: 75, Defense: 85, "Sp. Atk": 20, "Sp. Def": 30, Speed: 40 },
+    image: "assets/sandshrew.png",
+    depth: "assets/sandshrew-depth.png",
+  },
+  {
+    no: 27,
+    form: "alola",
+    name: "Alolan Sandshrew",
+    species: "Mouse Pokémon",
+    types: ["ice", "steel"],
+    height: "0.7 m", weight: "40.0 kg",
+    abilities: ["Snow Cloak", "Slush Rush (hidden)"],
+    blurb: "Driven from the desert onto Alola's snowy peaks, these Sandshrew grew a shell of ice as hard " +
+           "as steel. The shell is too heavy and stiff for them to curl up, but it grips well, and they " +
+           "slide across ice on their bellies or dig their claws in to cross it without slipping.",
+    stats: { HP: 50, Attack: 75, Defense: 90, "Sp. Atk": 10, "Sp. Def": 35, Speed: 40 },
+    image: "assets/sandshrew-alola.png",
+    depth: "assets/sandshrew-alola-depth.png",
+  },
+  {
     no: 172,
     region: "Johto",                   // entries from other regions get their own section on the home page
     name: "Pichu",
@@ -932,7 +961,7 @@ const speciesIn = r => new Set(POKEDEX.filter(p => regionOf(p) === r).map(p => p
 // Evolution lines by Pokédex number. Each entry page shows its line; a regional form follows
 // its own form where one exists (Alolan Rattata -> Alolan Raticate).
 const EVOLUTIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15], [16, 17, 18],
-                    [19, 20], [21, 22], [23, 24], [172, 25, 26]];
+                    [19, 20], [21, 22], [23, 24], [172, 25, 26], [27, 28]];
 const REGIONAL = ["alola"];
 function evolutionLine(p) {
   const line = EVOLUTIONS.find(l => l.includes(p.no));
