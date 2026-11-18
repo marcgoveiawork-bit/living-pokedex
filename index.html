@@ -1072,6 +1072,21 @@ const POKEDEX = [
     depth: "assets/clefable-depth.png",
   },
   {
+    no: 36,
+    form: "mega",
+    name: "Mega Clefable",
+    species: "Fairy Pokémon",
+    types: ["fairy", "flying"],
+    height: "1.7 m", weight: "42.3 kg",
+    abilities: ["Magic Bounce"],
+    blurb: "Mega Evolution gives it four great petal-like wings in pink and yellow, and it takes to the " +
+           "air for good, drifting high on moonlit nights. A soft white cap covers its head, and its ears " +
+           "lengthen into dark tubes that work like telescopes, letting it watch the stars and the ground far below.",
+    stats: { HP: 95, Attack: 80, Defense: 93, "Sp. Atk": 135, "Sp. Def": 110, Speed: 70 },
+    image: "assets/clefable-mega.png",
+    depth: "assets/clefable-mega-depth.png",
+  },
+  {
     no: 172,
     region: "Johto",                   // entries from other regions get their own section on the home page
     name: "Pichu",
@@ -1085,6 +1100,21 @@ const POKEDEX = [
     stats: { HP: 20, Attack: 40, Defense: 15, "Sp. Atk": 35, "Sp. Def": 35, Speed: 60 },
     image: "assets/pichu.png",
     depth: "assets/pichu-depth.png",
+  },
+  {
+    no: 173,
+    region: "Johto",
+    name: "Cleffa",
+    species: "Star Shape Pokémon",
+    types: ["fairy"],
+    height: "0.3 m", weight: "3.0 kg",
+    abilities: ["Cute Charm", "Magic Guard, Friend Guard (hidden)"],
+    blurb: "A tiny pink creature shaped rather like a star, with brown-tipped ears and a curl of fur on " +
+           "its head. It is most often seen on nights when shooting stars fall, and groups of them " +
+           "gather in a ring to dance until dawn. It is said to arrive riding on meteors.",
+    stats: { HP: 50, Attack: 25, Defense: 28, "Sp. Atk": 45, "Sp. Def": 55, Speed: 15 },
+    image: "assets/cleffa.png",
+    depth: "assets/cleffa-depth.png",
   },
 ];
 const slug = p => p.slug || p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
