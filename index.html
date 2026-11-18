@@ -958,6 +958,35 @@ const POKEDEX = [
     depth: "assets/sandslash-alola-depth.png",
   },
   {
+    no: 29,
+    slug: "nidoran-f",                 // the name's symbol can't go in a web address
+    name: "Nidoran♀",
+    species: "Poison Pin Pokémon",
+    types: ["poison"],
+    height: "0.4 m", weight: "7.0 kg",
+    abilities: ["Poison Point", "Rivalry, Hustle (hidden)"],
+    blurb: "A small, pale-blue creature with large ears, prominent front teeth and short barbs along its " +
+           "back. It is gentle by nature and avoids fights, but the barbs carry a strong venom that " +
+           "protects it if seized. Its horn is smaller than the male's, and its whiskers sense danger nearby.",
+    stats: { HP: 55, Attack: 47, Defense: 52, "Sp. Atk": 40, "Sp. Def": 40, Speed: 41 },
+    image: "assets/nidoran-f.png",
+    depth: "assets/nidoran-f-depth.png",
+  },
+  {
+    no: 30,
+    name: "Nidorina",
+    species: "Poison Pin Pokémon",
+    types: ["poison"],
+    height: "0.8 m", weight: "20.0 kg",
+    abilities: ["Poison Point", "Rivalry, Hustle (hidden)"],
+    blurb: "Larger and sturdier than its earlier form, with a blue hide and a row of venomous spines down " +
+           "its back. It is calm among its own kind and lowers its spines so as not to hurt them, but " +
+           "raises them when alarmed. It grows uneasy when kept apart from its group.",
+    stats: { HP: 70, Attack: 62, Defense: 67, "Sp. Atk": 55, "Sp. Def": 55, Speed: 56 },
+    image: "assets/nidorina.png",
+    depth: "assets/nidorina-depth.png",
+  },
+  {
     no: 172,
     region: "Johto",                   // entries from other regions get their own section on the home page
     name: "Pichu",
@@ -973,7 +1002,7 @@ const POKEDEX = [
     depth: "assets/pichu-depth.png",
   },
 ];
-const slug = p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const slug = p => p.slug || p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pad3 = n => String(n).padStart(3, "0");
 // Type colours (from the owner's reference sheet; grass and poison keep the site's original shades).
 const TYPE_COLORS = {
@@ -990,7 +1019,7 @@ const speciesIn = r => new Set(POKEDEX.filter(p => regionOf(p) === r).map(p => p
 // Evolution lines by Pokédex number. Each entry page shows its line; a regional form follows
 // its own form where one exists (Alolan Rattata -> Alolan Raticate).
 const EVOLUTIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15], [16, 17, 18],
-                    [19, 20], [21, 22], [23, 24], [172, 25, 26], [27, 28]];
+                    [19, 20], [21, 22], [23, 24], [172, 25, 26], [27, 28], [29, 30, 31]];
 const REGIONAL = ["alola"];
 function evolutionLine(p) {
   const line = EVOLUTIONS.find(l => l.includes(p.no));
